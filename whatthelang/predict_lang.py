@@ -1,4 +1,4 @@
-from pyfasttext import FastText
+from fasttext import FastText
 from os import path
 import re
 
@@ -11,7 +11,7 @@ class WhatTheLang(object):
         self.unknown = "CANT_PREDICT"
 
     def load_model(self):
-        return FastText(self.model_file)
+        return FastText.load_model(self.model_file)
 
     def _clean_up(self,txt):
         txt = re.sub(r"\b\d+\b", "", txt)
@@ -20,30 +20,47 @@ class WhatTheLang(object):
     def _flatten(self,pred):
         return [item[0] if len(item)!=0 else self.unknown for item in pred]
 
-
     def _get_langs(self):
         return self.model.labels
 
+    def _label_to_output(self, label):
+        return label.replace("__label__", "")
 
     def predict_lang(self,inp):
         if type(inp) != list:
             cleaned_txt = self._clean_up(inp)
             if cleaned_txt == "":
                 raise ValueError("Not enough text to predict language")
-            pred = self.model.predict([cleaned_txt])[0]
+            pred, _ = self.model.predict([cleaned_txt])
+            pred = pred[0]
             if len(pred) == 0:
                 return self.unknown
-            return pred[0]
+            return self._label_to_output(pred[0])
         else:
             batch = [self._clean_up(i) for i in inp]
-            return self._flatten(self.model.predict(batch))
-
+            pred, _ = self.model.predict(batch)
+            return [
+                self._label_to_output(label)
+                for label in self._flatten(pred)
+            ]
 
     def pred_prob(self,inp):
         if type(inp) != list:
             inp = self._clean_up(inp)
-            return self.model.predict_proba([inp])
-        return self.model.predict_proba(inp)
+            pred, prob = self.model.predict([inp])
+            return [
+                (self._label_to_output(label), probability)
+                for label, probability in zip(pred[0], prob[0])
+            ]
+        else:
+            pred, prob = self.model.predict(inp)
+            return [
+                [
+                    (self._label_to_output(label), probability)
+                    for label, probability in zip(item_predictions, item_probabilities)
+                ]
+                for item_predictions, item_probabilities in zip(pred, prob)
+            ]
 
 
 
