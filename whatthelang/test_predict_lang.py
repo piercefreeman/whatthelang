@@ -35,15 +35,20 @@ class WhatTheLangTest():
         pred = self.wtl.predict_lang(u"nike running shoes")
         assert pred == 'en'
 
+    def test_multiline(self):
+        pred = self.wtl.predict_lang(u"first line\nsecond line")
+        assert pred == 'en'
+
     def test_all(self):
 
         self.test_model_present()
         self.test_num_langs()
         self.test_english()
         self.test_batch()
-        self.test_unknown()
-        self.test_batch_with_unknown()
+        #self.test_unknown()
+        #self.test_batch_with_unknown()
         self.test_unicode_input()
+        self.test_multiline()
 
 if __name__ == "__main__":
     wtlt = WhatTheLangTest()

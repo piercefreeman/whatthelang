@@ -15,6 +15,7 @@ class WhatTheLang(object):
 
     def _clean_up(self,txt):
         txt = re.sub(r"\b\d+\b", "", txt)
+        txt = re.sub(r"\n+", " ", txt)
         return txt
 
     def _flatten(self,pred):
