@@ -9,6 +9,12 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
+requirements = ["Cython", "cysignals"]
+
+try:
+    import fasttext
+except ImportError:
+    requirements += ["fasttext-wheel"]
 
 setup(
     name='whatthelang',
@@ -21,7 +27,7 @@ setup(
     keywords='language detection library',
     packages=['whatthelang'],
     include_package_data=True,
-    install_requires=['Cython','cysignals','fasttext-wheel'],
+    install_requires=requirements,
     license=license,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
